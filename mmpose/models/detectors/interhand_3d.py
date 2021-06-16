@@ -185,7 +185,7 @@ class Interhand3D(TopDown):
                     img,
                     pose_2d,
                     skeleton,
-                    kpt_score_thr=0.3,
+                    kpt_score_thr=kpt_score_thr,
                     pose_kpt_color=pose_kpt_color,
                     pose_limb_color=pose_limb_color,
                     radius=radius,
