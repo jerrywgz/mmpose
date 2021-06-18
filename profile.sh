@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=0 python3.7 tools/benchmark_inference.py configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py

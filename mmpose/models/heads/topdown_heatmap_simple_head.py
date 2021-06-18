@@ -218,7 +218,8 @@ class TopdownHeatmapSimpleHead(TopdownHeatmapBaseHead):
             if self.test_cfg.get('shift_heatmap', False):
                 output_heatmap[:, :, :, 1:] = output_heatmap[:, :, :, :-1]
         else:
-            output_heatmap = output.detach().cpu().numpy()
+            #output_heatmap = output.detach().cpu().numpy()
+            output_heatmap = output
         return output_heatmap
 
     def _init_inputs(self, in_channels, in_index, input_transform):

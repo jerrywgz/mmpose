@@ -50,28 +50,50 @@ def main():
         wrap_fp16_model(model)
     if args.fuse_conv_bn:
         model = fuse_conv_bn(model)
+    print('fp16_cfg: ', fp16_cfg)
+    print('fuse_conv_bn: ', args.fuse_conv_bn)
     model = MMDataParallel(model, device_ids=[0])
 
     # the first several iterations may be very slow so skip them
     num_warmup = 5
     pure_inf_time = 0
-
+    bench_iter = 1000
     # benchmark with total batch and take the average
-    for i, data in enumerate(data_loader):
-
-        torch.cuda.synchronize()
+    import numpy as np
+    #image = np.load('image.npy')
+    #image = torch.Tensor(image)
+    data = torch.load('data.pt')
+    debug_time = 1000
+    print('model: ', model)
+    for i in range(debug_time):
+    #for i, data in enumerate(data_loader):
+        #torch.save(data, 'data.pt')
+        #image = data['img'].detach().cpu().numpy()
+        #np.save('image', image)
+        #print('data: ', data)
+        #torch.cuda.synchronize()
+        if i == num_warmup:
+            debug_st_time = time.perf_counter()
         start_time = time.perf_counter()
         with torch.no_grad():
             model(return_loss=False, **data)
 
-        torch.cuda.synchronize()
+        #torch.cuda.synchronize()
         elapsed = time.perf_counter() - start_time
 
         if i >= num_warmup:
+            #import numpy as np
+            #np.save('torch_imgs/img_{}'.format(i), data['img'])
             pure_inf_time += elapsed
             if (i + 1) % args.log_interval == 0:
                 its = (i + 1 - num_warmup) / pure_inf_time
                 print(f'Done item [{i + 1:<3}],  {its:.2f} items / s')
+        #if i == bench_iter:
+        #    break
+    debug_end_time = time.perf_counter()
+    debug_inter = debug_end_time - debug_st_time
+    debug_fps = (debug_time - num_warmup) / debug_inter
+    print(f'debug fps: {debug_fps:.2f} items / s')
     print(f'Overall average: {its:.2f} items / s')
     print(f'Total time: {pure_inf_time:.2f} s')
 
